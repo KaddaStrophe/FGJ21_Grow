@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Tilemaps;
@@ -10,44 +9,42 @@ public class ColliderGenerator : MonoBehaviour {
     [SerializeField]
     Tilemap tilemap = default;
     [SerializeField]
+    Transform spawnRoot = default;
+    [SerializeField, Range(1, 10)]
+    int spawnHeight = 10;
+    [SerializeField, Range(1, 20)]
+    int minHeight = 10;
+    [SerializeField]
     Transform[] spawnList = default;
-    [SerializeField, Range(1f, 10f)]
-    float beginningSpawnRate = 4;
     [SerializeField, Range(1, 10)]
     int minWidth = 1;
     [SerializeField, Range(1, 10)]
     int maxWidth = 3;
 
-    float currentSpawRate;
     bool isSpawning = false;
-    bool startedSpawning = false;
+    int lastSpawnPos;
 
 
     protected void Start() {
         Assert.IsNotNull(spawnList, nameof(spawnList));
         Assert.IsTrue(tilemap, nameof(tilemap));
-        currentSpawRate = beginningSpawnRate;
+        lastSpawnPos = (int)spawnRoot.position.y + spawnHeight;
     }
 
     protected void FixedUpdate() {
-        if (isSpawning && !startedSpawning) {
-            startedSpawning = true;
-            StartCoroutine(SpawnObstaclesRandom());
+        if (isSpawning) {
+            for (; lastSpawnPos < spawnRoot.position.y + spawnHeight; lastSpawnPos++) {
+                SpawnObstacle(lastSpawnPos);
+            }
         }
-    }
-    IEnumerator SpawnObstaclesRandom() {
-        while (isSpawning) {
-            yield return new WaitForSeconds(currentSpawRate);
-            var spawnPos = spawnList[UnityEngine.Random.Range(0, spawnList.Length)];
-            int obstacleWidth = UnityEngine.Random.Range(minWidth, maxWidth);
-            SpawnObstacle(spawnPos, obstacleWidth);
-        }
-        startedSpawning = false;
-        StopCoroutine(SpawnObstaclesRandom());
     }
 
-    void SpawnObstacle(Transform spawnPos, int obstacleWidth) {
-        var spawnGridPosition = tilemap.WorldToCell(spawnPos.position);
+    void SpawnObstacle(int y) {
+        var spawnHorPos = spawnList[UnityEngine.Random.Range(0, spawnList.Length)];
+        int obstacleWidth = UnityEngine.Random.Range(minWidth, maxWidth);
+
+        var spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position);
+        spawnGridPosition.y = y;
         tilemap.SetTile(spawnGridPosition, TileToInstantiate);
         if (obstacleWidth > minWidth) {
             bool toLeft = true;
@@ -55,7 +52,8 @@ public class ColliderGenerator : MonoBehaviour {
             int rightStep = 1;
             for (int i = obstacleWidth; i > minWidth; i--) {
                 if (toLeft) {
-                    spawnGridPosition = tilemap.WorldToCell(spawnPos.position) - new Vector3Int(leftStep, 0, 0);
+                    spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) - new Vector3Int(leftStep, 0, 0);
+                    spawnGridPosition.y = y;
                     if (CanSpawn(spawnGridPosition)) {
                         tilemap.SetTile(spawnGridPosition, TileToInstantiate);
                         leftStep++;
@@ -63,7 +61,8 @@ public class ColliderGenerator : MonoBehaviour {
                         toLeft = !toLeft;
                     }
                 } else {
-                    spawnGridPosition = tilemap.WorldToCell(spawnPos.position) + new Vector3Int(rightStep, 0, 0);
+                    spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) + new Vector3Int(rightStep, 0, 0);
+                    spawnGridPosition.y = y;
                     if (CanSpawn(spawnGridPosition)) {
                         tilemap.SetTile(spawnGridPosition, TileToInstantiate);
                         leftStep++;
@@ -81,14 +80,9 @@ public class ColliderGenerator : MonoBehaviour {
     }
 
     public void StartSpawning() {
-        currentSpawRate = beginningSpawnRate;
         isSpawning = true;
     }
     public void StopSpawning() {
         isSpawning = false;
-    }
-
-    public void SetSpawnRate(float spawnRate) {
-        currentSpawRate = spawnRate;
     }
 }

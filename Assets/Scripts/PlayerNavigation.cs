@@ -79,8 +79,6 @@ public class PlayerNavigation : MonoBehaviour {
                 MoveToNewPos(currentGridPosition);
             }
         }
-        startedMovement = false;
-        StopCoroutine(MoveHead());
     }
 
     void MoveToNewPos(Vector3Int targetGridPosition) {

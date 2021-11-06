@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class LevelMovement : MonoBehaviour {
@@ -6,7 +7,9 @@ public class LevelMovement : MonoBehaviour {
     [SerializeField]
     Transform objectToMove = default;
 
-    float currentSpeed = 0f;
+    bool shouldMove = false;
+
+    public float currentSpeed { get { return speed; } }
 
     protected void Awake() {
         if (!objectToMove) {
@@ -21,14 +24,20 @@ public class LevelMovement : MonoBehaviour {
     }
 
     protected void FixedUpdate() {
-        objectToMove.Translate(0, -Time.deltaTime * currentSpeed, 0);
+        if (shouldMove) {
+            objectToMove.Translate(0, -Time.deltaTime * speed, 0);
+        }
     }
 
     public void StartMoving() {
-        currentSpeed = speed;
+        shouldMove = true;
     }
 
     public void StopMoving() {
-        currentSpeed = 0f;
+        shouldMove = false;
+    }
+
+    public void AddToMovementSpeed(float speed) {
+        this.speed += speed;
     }
 }
