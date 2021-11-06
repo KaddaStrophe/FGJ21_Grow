@@ -653,6 +653,7 @@ MonoBehaviour:
   tilemap: {fileID: 552905204}
   spawnRoot: {fileID: 2011908701}
   spawnHeight: 10
+  minHeight: 10
   spawnList:
   - {fileID: 294072814}
   - {fileID: 2078358558}
@@ -663,7 +664,6 @@ MonoBehaviour:
   - {fileID: 627517623}
   - {fileID: 59432316}
   - {fileID: 2034868389}
-  beginningSpawnRate: 1
   minWidth: 1
   maxWidth: 3
 --- !u!114 &552905209
