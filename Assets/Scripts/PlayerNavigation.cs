@@ -79,6 +79,7 @@ public class PlayerNavigation : MonoBehaviour {
                 MoveToNewPos(currentGridPosition);
             }
         }
+        startedMovement = false;
     }
 
     void MoveToNewPos(Vector3Int targetGridPosition) {
