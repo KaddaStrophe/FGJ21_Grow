@@ -8,6 +8,8 @@ public class PlayerNavigation : MonoBehaviour {
     [SerializeField]
     Transform player = default;
     [SerializeField]
+    LevelManager levelManager = default;
+    [SerializeField]
     Tilemap groundTilemap = default;
     [SerializeField]
     Tilemap collisionTilemap = default;
@@ -23,9 +25,10 @@ public class PlayerNavigation : MonoBehaviour {
     bool alwaysMove = false;
 
     PlayerInput playerInput;
-    bool isMoving = false;
-    bool startedMovement = false;
     Vector2 currentMovement;
+    bool characterShouldMove = false;
+    bool startedMovement = false;
+    bool isActive = false;
 
     protected void OnEnable() {
         playerInput = new PlayerInput();
@@ -42,33 +45,47 @@ public class PlayerNavigation : MonoBehaviour {
         Assert.IsTrue(collisionTilemap, nameof(collisionTilemap));
         Assert.IsTrue(plantTilemap, nameof(plantTilemap));
         playerInput.Player.Move.performed += ctx => Move(ctx.ReadValue<Vector2>());
+        isActive = true;
     }
 
     void Move(Vector2 direction) {
-        isMoving = true;
-        currentMovement = direction;
-        if (!startedMovement) {
-            startedMovement = true;
-            StartCoroutine(MoveHead());
+        if (isActive && (alwaysMove || direction != Vector2.zero)) {
+            characterShouldMove = true;
+        } else if (!isActive || (direction == Vector2.zero && !alwaysMove)) {
+            characterShouldMove = false;
         }
+        if (characterShouldMove) {
+            // Start moving level maps
+            levelManager.MoveLevel();
 
+            // Attempt to move Player
+            currentMovement = direction;
+            if (!startedMovement) {
+                startedMovement = true;
+                StartCoroutine(MoveHead());
+            }
+        }
     }
 
     IEnumerator MoveHead() {
-        while (isMoving) {
+        while (characterShouldMove) {
             yield return new WaitForSeconds(stepTime);
             currentMovement = CalculateSnap(currentMovement);
             if (alwaysMove && currentMovement == Vector2.zero) {
                 currentMovement = new Vector2(0, 1);
             }
-            if (!(currentMovement == Vector2.zero) && CanMove(currentMovement)) {
+            if (CanMove(currentMovement)) {
                 var currentGridPosition = plantTilemap.WorldToCell(transform.position);
-                plantTilemap.SetTile(currentGridPosition, plantTile);
-                transform.position += (Vector3)currentMovement;
+                MoveToNewPos(currentGridPosition);
             }
         }
         startedMovement = false;
         StopCoroutine(MoveHead());
+    }
+
+    void MoveToNewPos(Vector3Int targetGridPosition) {
+        plantTilemap.SetTile(targetGridPosition, plantTile);
+        transform.position += (Vector3)currentMovement;
     }
 
     Vector2 CalculateSnap(Vector2 analogInput) {
@@ -92,14 +109,18 @@ public class PlayerNavigation : MonoBehaviour {
     }
 
     bool CanMove(Vector2 direction) {
-        var targetGridPosition = groundTilemap.WorldToCell(transform.position + (Vector3)direction);
-        if (!groundTilemap.HasTile(targetGridPosition) || collisionTilemap.HasTile(targetGridPosition)) {
-            if (collisionTilemap.HasTile(targetGridPosition)) {
-                Explode();
+        var targetGroundGridPosition = groundTilemap.WorldToCell(transform.position + (Vector3)direction);
+        var targetColliderGridPosition = collisionTilemap.WorldToCell(transform.position + (Vector3)direction);
+        var targetPlantGridPosition = plantTilemap.WorldToCell(transform.position);
+        if (!groundTilemap.HasTile(targetGroundGridPosition) || collisionTilemap.HasTile(targetColliderGridPosition)) {
+            if (collisionTilemap.HasTile(targetColliderGridPosition)) {
+                // Game Over State
+                MoveToNewPos(targetPlantGridPosition);
+                GameOver();
             }
             return false;
         } else {
-            if (plantTilemap.HasTile(targetGridPosition)) {
+            if (plantTilemap.HasTile(targetGroundGridPosition)) {
                 Bloom();
             }
             return true;
@@ -111,10 +132,12 @@ public class PlayerNavigation : MonoBehaviour {
         //Debug.Log("Bloom");
     }
 
-    void Explode() {
+    void GameOver() {
+        isActive = false;
+        characterShouldMove = false;
+        levelManager.StopLevel();
         // TODO: Explode into Flower
         // TODO: End Run / Menu (Back to Menu, Retry)
         // TODO: Display Meters
-        //Debug.Log("Explode");
     }
 }
