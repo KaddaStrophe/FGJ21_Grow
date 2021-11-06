@@ -5,15 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class ColliderGenerator : MonoBehaviour {
     [SerializeField]
-    Tile TileToInstantiate = default;
+    RuleTile tileToInstantiate = default;
     [SerializeField]
     Tilemap tilemap = default;
     [SerializeField]
     Transform spawnRoot = default;
     [SerializeField, Range(1, 10)]
     int spawnHeight = 10;
-    [SerializeField, Range(1, 20)]
-    int minHeight = 10;
     [SerializeField]
     Transform[] spawnList = default;
     [SerializeField, Range(1, 10)]
@@ -33,7 +31,8 @@ public class ColliderGenerator : MonoBehaviour {
 
     protected void FixedUpdate() {
         if (isSpawning) {
-            for (; lastSpawnPos < spawnRoot.position.y + spawnHeight; lastSpawnPos++) {
+            var targetGroundGridPosition = tilemap.WorldToCell(spawnRoot.position);
+            for (; lastSpawnPos < targetGroundGridPosition.y + spawnHeight; lastSpawnPos++) {
                 SpawnObstacle(lastSpawnPos);
             }
         }
@@ -45,7 +44,7 @@ public class ColliderGenerator : MonoBehaviour {
 
         var spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position);
         spawnGridPosition.y = y;
-        tilemap.SetTile(spawnGridPosition, TileToInstantiate);
+        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
         if (obstacleWidth > minWidth) {
             bool toLeft = true;
             int leftStep = 1;
@@ -55,7 +54,7 @@ public class ColliderGenerator : MonoBehaviour {
                     spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) - new Vector3Int(leftStep, 0, 0);
                     spawnGridPosition.y = y;
                     if (CanSpawn(spawnGridPosition)) {
-                        tilemap.SetTile(spawnGridPosition, TileToInstantiate);
+                        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
                         leftStep++;
                     } else {
                         toLeft = !toLeft;
@@ -64,7 +63,7 @@ public class ColliderGenerator : MonoBehaviour {
                     spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) + new Vector3Int(rightStep, 0, 0);
                     spawnGridPosition.y = y;
                     if (CanSpawn(spawnGridPosition)) {
-                        tilemap.SetTile(spawnGridPosition, TileToInstantiate);
+                        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
                         leftStep++;
                     } else {
                         toLeft = !toLeft;

@@ -46,13 +46,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 5214426812653446904}
+  levelManager: {fileID: 0}
   groundTilemap: {fileID: 0}
   collisionTilemap: {fileID: 0}
   plantTilemap: {fileID: 0}
-  plantTile: {fileID: 11400000, guid: 8c33b482ab2c9344b948d1ef068e0afb, type: 2}
+  plantTile: {fileID: 11400000, guid: e06a18a17a89ac640aea30d3ad30d4d6, type: 2}
+  flowerTile: {fileID: 11400000, guid: d97880898486734458d3b83c9701b0ea, type: 2}
   snapThreshold: 0.5
   stepTime: 0.3
   alwaysMove: 0
+  useFourDirections: 1
 --- !u!212 &5214426812653446905
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -60,7 +63,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5214426812653446910}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -94,7 +97,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: 89a2d5ac73c32104f8f3906dbc89c690, type: 3}
+  m_Sprite: {fileID: 741913245, guid: 41abe396cc1be304593f485d0fa01fc6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
