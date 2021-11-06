@@ -20,7 +20,7 @@ public class LevelMovement : MonoBehaviour {
         }
     }
 
-    protected void Update() {
+    protected void FixedUpdate() {
         objectToMove.Translate(0, -Time.deltaTime * currentSpeed, 0);
     }
 
