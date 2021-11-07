@@ -7,10 +7,12 @@ public class ColliderGenerator : MonoBehaviour {
     [SerializeField]
     RuleTile tileToInstantiate = default;
     [SerializeField]
-    Tilemap tilemap = default;
+    Tilemap colliderTilemap = default;
+    [SerializeField]
+    Tilemap frameTilemap = default;
     [SerializeField]
     Transform spawnRoot = default;
-    [SerializeField, Range(1, 10)]
+    [SerializeField, Range(10, 15)]
     int spawnHeight = 10;
     [SerializeField]
     Transform[] spawnList = default;
@@ -25,13 +27,14 @@ public class ColliderGenerator : MonoBehaviour {
 
     protected void Start() {
         Assert.IsNotNull(spawnList, nameof(spawnList));
-        Assert.IsTrue(tilemap, nameof(tilemap));
+        Assert.IsTrue(colliderTilemap, nameof(colliderTilemap));
+        Assert.IsTrue(frameTilemap, nameof(frameTilemap));
         lastSpawnPos = (int)spawnRoot.position.y + spawnHeight;
     }
 
     protected void FixedUpdate() {
         if (isSpawning) {
-            var targetGroundGridPosition = tilemap.WorldToCell(spawnRoot.position);
+            var targetGroundGridPosition = colliderTilemap.WorldToCell(spawnRoot.position);
             for (; lastSpawnPos < targetGroundGridPosition.y + spawnHeight; lastSpawnPos++) {
                 SpawnObstacle(lastSpawnPos);
             }
@@ -40,41 +43,41 @@ public class ColliderGenerator : MonoBehaviour {
 
     void SpawnObstacle(int y) {
         var spawnHorPos = spawnList[UnityEngine.Random.Range(0, spawnList.Length)];
-        int obstacleWidth = UnityEngine.Random.Range(minWidth, maxWidth);
+        int obstacleWidth = UnityEngine.Random.Range(minWidth, maxWidth + 1);
 
-        var spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position);
-        spawnGridPosition.y = y;
-        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
-        if (obstacleWidth > minWidth) {
-            bool toLeft = true;
-            int leftStep = 1;
-            int rightStep = 1;
-            for (int i = obstacleWidth; i > minWidth; i--) {
-                if (toLeft) {
-                    spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) - new Vector3Int(leftStep, 0, 0);
-                    spawnGridPosition.y = y;
-                    if (CanSpawn(spawnGridPosition)) {
-                        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
-                        leftStep++;
-                    } else {
-                        toLeft = !toLeft;
-                    }
-                } else {
-                    spawnGridPosition = tilemap.WorldToCell(spawnHorPos.position) + new Vector3Int(rightStep, 0, 0);
-                    spawnGridPosition.y = y;
-                    if (CanSpawn(spawnGridPosition)) {
-                        tilemap.SetTile(spawnGridPosition, tileToInstantiate);
-                        leftStep++;
-                    } else {
-                        toLeft = !toLeft;
-                    }
+        bool toLeft = true;
+        int leftStep = 1;
+        int rightStep = 1;
+
+        var spawncolliderGridPosition = colliderTilemap.WorldToCell(spawnHorPos.position);
+        spawncolliderGridPosition.y = y;
+        colliderTilemap.SetTile(spawncolliderGridPosition, tileToInstantiate);
+
+        for (int i = obstacleWidth - 1; i > 0; i--) {
+            if (toLeft) {
+                spawncolliderGridPosition = colliderTilemap.WorldToCell(spawnHorPos.position) - new Vector3Int(leftStep, 0, 0);
+                spawncolliderGridPosition.y = y;
+                var spawnframeGridPosition = frameTilemap.WorldToCell(spawnHorPos.position) - new Vector3Int(leftStep, 0, 0);
+                spawnframeGridPosition.y = y;
+                if (CanSpawn(colliderTilemap, spawncolliderGridPosition) && CanSpawn(frameTilemap, spawnframeGridPosition)) {
+                    colliderTilemap.SetTile(spawncolliderGridPosition, tileToInstantiate);
+                    leftStep++;
                 }
-                toLeft = !toLeft;
+            } else {
+                spawncolliderGridPosition = colliderTilemap.WorldToCell(spawnHorPos.position) + new Vector3Int(rightStep, 0, 0);
+                spawncolliderGridPosition.y = y;
+                var spawnframeGridPosition = frameTilemap.WorldToCell(spawnHorPos.position) + new Vector3Int(rightStep, 0, 0);
+                spawnframeGridPosition.y = y;
+                if (CanSpawn(colliderTilemap, spawncolliderGridPosition) && CanSpawn(frameTilemap, spawnframeGridPosition)) {
+                    colliderTilemap.SetTile(spawncolliderGridPosition, tileToInstantiate);
+                    rightStep++;
+                }
             }
+            toLeft = !toLeft;
         }
     }
 
-    bool CanSpawn(Vector3Int spawnGridPosition) {
+    bool CanSpawn(Tilemap tilemap, Vector3Int spawnGridPosition) {
         return !tilemap.HasTile(spawnGridPosition);
     }
 

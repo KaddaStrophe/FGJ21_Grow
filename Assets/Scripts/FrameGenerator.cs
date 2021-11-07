@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Tilemaps;
 
-public class BackgroundGenerator : MonoBehaviour {
+public class FrameGenerator : MonoBehaviour {
     [SerializeField]
     RuleTile tileToInstantiate = default;
     [SerializeField]
@@ -27,18 +27,15 @@ public class BackgroundGenerator : MonoBehaviour {
 
     protected void FixedUpdate() {
         if (isSpawning) {
-            var targetGroundGridPosition = tilemap.WorldToCell(spawnRoot.position);
-            for (; lastSpawnPos < targetGroundGridPosition.y + spawnHeight; lastSpawnPos++) {
-                SpawnBackground(lastSpawnPos);
+            var targetFrameGridPosition = tilemap.WorldToCell(spawnRoot.position);
+            for (; lastSpawnPos < targetFrameGridPosition.y + spawnHeight; lastSpawnPos++) {
+                SpawnFrame(lastSpawnPos);
             }
         }
     }
-    void SpawnBackground(int y) {
-        for (int i = levelWidth; i > 0; i--) {
-            if (!tilemap.HasTile(new Vector3Int(i - 1, y, 0))) {
-                tilemap.SetTile(new Vector3Int(i - 1, y, 0), tileToInstantiate);
-            }
-        }
+    void SpawnFrame(int y) {
+            tilemap.SetTile(new Vector3Int(levelWidth - 1, y, 0), tileToInstantiate);
+            tilemap.SetTile(new Vector3Int(0, y, 0), tileToInstantiate);
     }
     public void StartSpawning() {
         isSpawning = true;

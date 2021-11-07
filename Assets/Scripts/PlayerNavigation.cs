@@ -13,7 +13,11 @@ public class PlayerNavigation : MonoBehaviour {
     [SerializeField]
     Tilemap collisionTilemap = default;
     [SerializeField]
+    Tilemap frameTilemap = default;
+    [SerializeField]
     Tilemap plantTilemap = default;
+    [SerializeField]
+    Tilemap flowerTilemap = default;
     [SerializeField]
     RuleTile plantTile = default;
     [SerializeField]
@@ -46,6 +50,7 @@ public class PlayerNavigation : MonoBehaviour {
         Assert.IsTrue(groundTilemap, nameof(groundTilemap));
         Assert.IsTrue(collisionTilemap, nameof(collisionTilemap));
         Assert.IsTrue(plantTilemap, nameof(plantTilemap));
+        Assert.IsTrue(flowerTilemap, nameof(flowerTilemap));
         playerInput.Player.Move.performed += ctx => Move(ctx.ReadValue<Vector2>());
         isActive = true;
         var currentGridPosition = plantTilemap.WorldToCell(player.position);
@@ -128,9 +133,11 @@ public class PlayerNavigation : MonoBehaviour {
         var targetGroundGridPosition = groundTilemap.WorldToCell(player.position + (Vector3)direction);
         var targetColliderGridPosition = collisionTilemap.WorldToCell(player.position + (Vector3)direction);
         var targetPlantGridPosition = plantTilemap.WorldToCell(player.position + (Vector3)direction);
+        var targetFrameGridPosition = frameTilemap.WorldToCell(player.position + (Vector3)direction);
         if (!groundTilemap.HasTile(targetGroundGridPosition)
             || collisionTilemap.HasTile(targetColliderGridPosition)
-            || plantTilemap.HasTile(targetPlantGridPosition)) {
+            || plantTilemap.HasTile(targetPlantGridPosition)
+            || frameTilemap.HasTile(targetFrameGridPosition)) {
             if (collisionTilemap.HasTile(targetColliderGridPosition)) {
                 // Game Over State
                 MoveToNewPos(direction);
@@ -154,7 +161,7 @@ public class PlayerNavigation : MonoBehaviour {
     void DrawFlower(Vector3Int targetPlantGridPosition) {
         for(int i = -1; i<2;i++) {
             for (int j = -1; j < 2; j++) {
-                plantTilemap.SetTile(targetPlantGridPosition + new Vector3Int(i, j, 0), flowerTile);
+                flowerTilemap.SetTile(targetPlantGridPosition + new Vector3Int(i, j, 0), flowerTile);
             }
         }
         

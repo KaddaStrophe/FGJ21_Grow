@@ -7,6 +7,8 @@ public class LevelManager : MonoBehaviour {
     ColliderGenerator colliderGenerator = default;
     [SerializeField]
     BackgroundGenerator backgroundGenerator = default;
+    [SerializeField]
+    FrameGenerator frameGenerator = default;
 
     [SerializeField]
     Tilemap heightReferenceTilemap = default;
@@ -29,6 +31,9 @@ public class LevelManager : MonoBehaviour {
         if (!backgroundGenerator) {
             backgroundGenerator = transform.GetComponentInChildren<BackgroundGenerator>();
         }
+        if (!frameGenerator) {
+            frameGenerator = transform.GetComponentInChildren<FrameGenerator>();
+        }
     }
 
     protected void OnValidate() {
@@ -39,6 +44,9 @@ public class LevelManager : MonoBehaviour {
         if (!backgroundGenerator) {
             backgroundGenerator = transform.GetComponentInChildren<BackgroundGenerator>();
         }
+        if (!frameGenerator) {
+            frameGenerator = transform.GetComponentInChildren<FrameGenerator>();
+        }
     }
 
     public void MoveLevel() {
@@ -47,6 +55,7 @@ public class LevelManager : MonoBehaviour {
         }
         colliderGenerator.StartSpawning();
         backgroundGenerator.StartSpawning();
+        frameGenerator.StartSpawning();
     }
 
     public void StopLevel() {
@@ -55,6 +64,7 @@ public class LevelManager : MonoBehaviour {
         }
         colliderGenerator.StopSpawning();
         backgroundGenerator.StopSpawning();
+        frameGenerator.StopSpawning();
     }
 
     void FixedUpdate() {
