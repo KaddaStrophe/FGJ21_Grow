@@ -12,6 +12,8 @@ public class PlayerNavigation : MonoBehaviour {
     Tilemap groundTilemap = default;
     [SerializeField]
     Tilemap collisionTilemap = default;
+
+
     [SerializeField]
     Tilemap frameTilemap = default;
     [SerializeField]
@@ -165,7 +167,8 @@ public class PlayerNavigation : MonoBehaviour {
             if (collisionTilemap.HasTile(targetColliderGridPosition)) {
                 // Game Over State
                 MoveToNewPos(direction);
-                GameOver(targetPlantGridPosition);
+                DrawFlower(targetPlantGridPosition);
+                GameOver();
             }
             return false;
         } else {
@@ -173,12 +176,14 @@ public class PlayerNavigation : MonoBehaviour {
         }
     }
 
-    void GameOver(Vector3Int targetPlantGridPosition) {
+    public void CommenceDeath() {
+        GameOver();
+    }
+
+    void GameOver() {
         isActive = false;
         levelManager.StopLevel();
-        DrawFlower(targetPlantGridPosition);
         onGameOver?.Invoke();
-        // TODO: Display Meters
     }
 
     void DrawFlower(Vector3Int targetPlantGridPosition) {
