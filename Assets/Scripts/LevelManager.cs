@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -13,19 +14,20 @@ public class LevelManager : MonoBehaviour {
     CollectibleGenerator collectibleGenerator = default;
     [SerializeField]
     PlayerNavigation player = default;
+    [SerializeField]
+    TextMeshProUGUI heightDisplay = default;
 
     [SerializeField]
     Tilemap heightReferenceTilemap = default;
-    [SerializeField]
-    Transform heightPos = default;
     [SerializeField, Range(0f, 1f)]
     float acceleration = 0.01f;
 
     IList<LevelMovement> levelsToMove = new List<LevelMovement>();
+    
 
-    int currentHeight {
+    public int currentHeight {
         get {
-            return heightReferenceTilemap.WorldToCell(heightPos.position).y;
+            return heightReferenceTilemap.WorldToCell(player.transform.position).y;
         }
     }
 
@@ -96,10 +98,21 @@ public class LevelManager : MonoBehaviour {
         collectibleGenerator.StopSpawning();
     }
 
-    internal void AdjustSpeedWithScore(int points) {
+    public void AdjustSpeedWithScore(int points) {
         foreach (var level in levelsToMove) {
             level.SubtractFromMovementSpeed(points);
         }
         player.SubtractFromMovementSpeed(points);
+    }
+
+    protected void OnEnable() {
+        PlayerNavigation.onGameOver += SetHeightDisplay;
+    }
+    protected void OnDisable() {
+        PlayerNavigation.onGameOver -= SetHeightDisplay;
+    }
+
+    void SetHeightDisplay() {
+        heightDisplay.text = "Your score: " + currentHeight.ToString() + "m";
     }
 }

@@ -178,7 +178,6 @@ public class PlayerNavigation : MonoBehaviour {
         levelManager.StopLevel();
         DrawFlower(targetPlantGridPosition);
         onGameOver?.Invoke();
-        // TODO: End Run / Menu (Back to Menu, Retry)
         // TODO: Display Meters
     }
 

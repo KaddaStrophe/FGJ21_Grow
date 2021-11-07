@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class GameOver : MonoBehaviour {
     [SerializeField]
@@ -9,7 +10,6 @@ public class GameOver : MonoBehaviour {
     protected void OnDisable() {
         PlayerNavigation.onGameOver -= PlayerNavigation_onGameOver;
     }
-
     void PlayerNavigation_onGameOver() {
         gameOverCanvas.SetActive(true);
     }
