@@ -35,6 +35,7 @@ public class PlayerNavigation : MonoBehaviour {
     Vector2 currentMovement;
     bool isActive = false;
 
+    public static event Action onGameOver;
 
     protected void OnEnable() {
         playerInput = new PlayerInput();
@@ -153,7 +154,7 @@ public class PlayerNavigation : MonoBehaviour {
         isActive = false;
         levelManager.StopLevel();
         DrawFlower(targetPlantGridPosition);
-        // TODO: Explode into Flower
+        onGameOver?.Invoke();
         // TODO: End Run / Menu (Back to Menu, Retry)
         // TODO: Display Meters
     }
