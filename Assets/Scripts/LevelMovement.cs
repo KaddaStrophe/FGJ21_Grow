@@ -6,10 +6,15 @@ public class LevelMovement : MonoBehaviour {
     float speed = 1f;
     [SerializeField]
     Transform objectToMove = default;
+    [SerializeField, Range(0.1f, 20f)]
+    public float minSpeed = 0.1f;
+    [SerializeField, Range(0f, 1f)]
+    public float acceleration = 0.1f;
 
     bool shouldMove = false;
 
-    public float currentSpeed { get { return speed; } }
+
+    public float currentSpeed { get { return speed; } set { } }
 
     protected void Awake() {
         if (!objectToMove) {
@@ -25,7 +30,7 @@ public class LevelMovement : MonoBehaviour {
 
     protected void FixedUpdate() {
         if (shouldMove) {
-            objectToMove.Translate(0, -Time.deltaTime * speed, 0);
+            objectToMove.Translate(0, Vector2.down.y * Time.deltaTime * speed, 0);
         }
     }
 
@@ -39,5 +44,16 @@ public class LevelMovement : MonoBehaviour {
 
     public void AddToMovementSpeed(float speed) {
         this.speed += speed;
+    }
+    public void SubtractFromMovementSpeed(float speed) {
+        if (this.speed - speed < minSpeed) {
+            this.speed = minSpeed;
+        } else {
+            this.speed -= speed;
+        }
+    }
+
+    public void SetAcceleration(float newAcceleration) {
+        speed += newAcceleration;
     }
 }

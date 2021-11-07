@@ -24,12 +24,20 @@ public class PlayerNavigation : MonoBehaviour {
     RuleTile flowerTile = default;
     [SerializeField, Range(0f, 1f)]
     float snapThreshold = 0.5f;
+
     [SerializeField, Range(0f, 4f)]
     float stepTime = 1f;
+    [SerializeField, Range(0f, 4f)]
+    float maxStepTime = 1f;
+    [SerializeField, Range(0f, 5f)]
+    float accelerationFactor = 2.5f;
     [SerializeField]
     bool alwaysMove = false;
     [SerializeField]
     bool useFourDirections = true;
+
+    [SerializeField]
+    int score = 0;
 
     PlayerInput playerInput;
     Vector2 currentMovement;
@@ -56,9 +64,11 @@ public class PlayerNavigation : MonoBehaviour {
         isActive = true;
         var currentGridPosition = plantTilemap.WorldToCell(player.position);
         plantTilemap.SetTile(currentGridPosition, plantTile);
+        maxStepTime = stepTime;
     }
 
     float timer;
+
     void FixedUpdate() {
         if (!isActive) {
             return;
@@ -86,6 +96,18 @@ public class PlayerNavigation : MonoBehaviour {
         }
     }
 
+    public void SetAcceleration(float newAcceleration) {
+        stepTime -= newAcceleration * Time.deltaTime * accelerationFactor;
+    }
+
+    public void SubtractFromMovementSpeed(float speed) {
+        float tempStep = stepTime + (speed * Time.deltaTime * accelerationFactor);
+        if(tempStep > maxStepTime) {
+            tempStep = maxStepTime;
+        }
+        stepTime = tempStep;
+    }
+
     void MoveToNewPos(Vector2 direction) {
         player.position += (Vector3)direction;
         var currentGridPosition = plantTilemap.WorldToCell(player.position);
@@ -110,6 +132,7 @@ public class PlayerNavigation : MonoBehaviour {
         }
         return analogInput;
     }
+
     Vector2 CalculateSnap8(Vector2 analogInput) {
         if (analogInput.x > snapThreshold) {
             analogInput.x = 1f;
@@ -160,11 +183,20 @@ public class PlayerNavigation : MonoBehaviour {
     }
 
     void DrawFlower(Vector3Int targetPlantGridPosition) {
-        for(int i = -1; i<2;i++) {
+        for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 flowerTilemap.SetTile(targetPlantGridPosition + new Vector3Int(i, j, 0), flowerTile);
             }
         }
-        
+
+    }
+
+    public void AddToScore(int points) {
+        score += points;
+        AdjustSpeed(points);
+    }
+
+    void AdjustSpeed(int points) {
+        levelManager.AdjustSpeedWithScore(points);
     }
 }
