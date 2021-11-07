@@ -21,7 +21,7 @@ public class Collect : MonoBehaviour {
     protected void OnTriggerEnter2D(Collider2D collision) {
         if (collision.CompareTag("Player")) {
             collision.TryGetComponent<PlayerNavigation>(out var player);
-            player.AddToScore(point);
+            player.Collect(point);
         }
     }
 }

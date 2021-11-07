@@ -7,6 +7,8 @@ public class PlayerNavigation : MonoBehaviour {
     [SerializeField]
     Transform player = default;
     [SerializeField]
+    AudioManager audioManager = default;
+    [SerializeField]
     LevelManager levelManager = default;
     [SerializeField]
     Tilemap groundTilemap = default;
@@ -24,6 +26,8 @@ public class PlayerNavigation : MonoBehaviour {
     RuleTile plantTile = default;
     [SerializeField]
     RuleTile flowerTile = default;
+
+
     [SerializeField, Range(0f, 1f)]
     float snapThreshold = 0.5f;
 
@@ -114,7 +118,7 @@ public class PlayerNavigation : MonoBehaviour {
         player.position += (Vector3)direction;
         var currentGridPosition = plantTilemap.WorldToCell(player.position);
         plantTilemap.SetTile(currentGridPosition, plantTile);
-
+        audioManager.PlayMoveSFX();
     }
     Vector2 CalculateSnap4(Vector2 analogInput) {
         if (analogInput.x > snapThreshold && analogInput.x > Mathf.Abs(analogInput.y)) {
@@ -181,6 +185,8 @@ public class PlayerNavigation : MonoBehaviour {
     }
 
     void GameOver() {
+        audioManager.PlayBlossomSFX();
+        audioManager.StopBGM();
         isActive = false;
         levelManager.StopLevel();
         onGameOver?.Invoke();
@@ -195,9 +201,10 @@ public class PlayerNavigation : MonoBehaviour {
 
     }
 
-    public void AddToScore(int points) {
+    public void Collect(int points) {
         score += points;
         AdjustSpeed(points);
+        audioManager.PlayCollectSFX();
     }
 
     void AdjustSpeed(int points) {
